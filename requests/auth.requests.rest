@@ -1,0 +1,15 @@
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+    "username": "joel", 
+    "password": "1234"
+}
+
+###
+POST http://localhost:3000/auth/token
+Content-Type: application/json
+
+{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiam9lbCIsImlhdCI6MTczMjYxOTczN30.2ZzA0xS2WheEMoCdRyh63EVzJiOdW05prcEyMEV66g0"
+}
