@@ -34,9 +34,7 @@ exports.loginGenerateTokens = async (username, password) => {
     return { accessToken, refreshToken };
 }
 
-exports.logout = async (token, userId) => {
-    if (!token) throw new CustomErr("Invalid token", 400);
-
+exports.logout = async (userId) => {
     const dbRefreshToken = await GetRefreshTokenByUserId(userId);
     if (!dbRefreshToken.length) throw new CustomErr("Unauthorized", 401);
 

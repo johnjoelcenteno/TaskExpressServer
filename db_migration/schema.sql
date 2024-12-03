@@ -1,4 +1,4 @@
--- Create Users table if it does not exist
+-- Check for existence of the Users table in the dbo schema
 IF NOT EXISTS (
     SELECT
         1
@@ -7,7 +7,8 @@ IF NOT EXISTS (
     WHERE
         name = 'Users'
         AND schema_id = SCHEMA_ID('dbo')
-) BEGIN CREATE TABLE Users (
+) BEGIN -- Create the Users table
+CREATE TABLE dbo.Users (
     UserId INT IDENTITY(1, 1) PRIMARY KEY,
     Username NVARCHAR(50) UNIQUE NOT NULL,
     PasswordHash NVARCHAR(255) NOT NULL,
@@ -18,7 +19,28 @@ IF NOT EXISTS (
 
 END;
 
--- Create Tasks table if it does not exist
+-- Check for existence of the Categories table in the dbo schema
+IF NOT EXISTS (
+    SELECT
+        1
+    FROM
+        sys.tables
+    WHERE
+        name = 'Categories'
+        AND schema_id = SCHEMA_ID('dbo')
+) BEGIN -- Create the Categories table
+CREATE TABLE dbo.Categories (
+    CategoryId INT IDENTITY(1, 1) PRIMARY KEY,
+    Title NVARCHAR(50) NOT NULL,
+    UserId INT NOT NULL,
+    CreatedAt DATETIME DEFAULT GETDATE(),
+    UpdatedAt DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (UserId) REFERENCES dbo.Users(UserId) ON DELETE CASCADE -- Ensure categories belong to a user
+);
+
+END;
+
+-- Check for existence of the Tasks table in the dbo schema
 IF NOT EXISTS (
     SELECT
         1
@@ -27,22 +49,25 @@ IF NOT EXISTS (
     WHERE
         name = 'Tasks'
         AND schema_id = SCHEMA_ID('dbo')
-) BEGIN CREATE TABLE Tasks (
+) BEGIN -- Create the Tasks table
+CREATE TABLE dbo.Tasks (
     TaskId INT IDENTITY(1, 1) PRIMARY KEY,
     UserId INT NOT NULL,
+    CategoryId INT NOT NULL,
     Title NVARCHAR(255) NOT NULL,
     Description NVARCHAR(MAX) NULL,
     Status NVARCHAR(20) DEFAULT 'Pending',
     DueDate DATETIME NULL,
     CreatedAt DATETIME DEFAULT GETDATE(),
     UpdatedAt DATETIME DEFAULT GETDATE(),
-    FOREIGN KEY (UserId) REFERENCES Users(UserId) ON DELETE CASCADE
+    FOREIGN KEY (UserId) REFERENCES dbo.Users(UserId) ON DELETE CASCADE,
+    FOREIGN KEY (CategoryId) REFERENCES dbo.Categories(CategoryId) ON DELETE NO ACTION -- Remove cascading delete
 );
 
 END;
 
--- populate users table
-IF NOT EXISTS(
+-- Populate Users table
+IF NOT EXISTS (
     SELECT
         1
     FROM
@@ -54,11 +79,27 @@ VALUES
     (
         'Joel',
         '$2b$13$cTwa.l6/263eX64P9rWL.eVBAgWE9dimW2Hv13TDm.xnuueYqiCZO'
-    )
+    );
+
 END;
 
--- populate tasks table
-IF NOT EXISTS(
+-- Populate Categories table
+IF NOT EXISTS (
+    SELECT
+        1
+    FROM
+        Categories
+) BEGIN
+INSERT INTO
+    Categories (Title, UserId)
+VALUES
+    ('Today', 1),
+    ('This week', 1),
+    ('This month', 1)
+END;
+
+-- Populate Tasks table
+IF NOT EXISTS (
     SELECT
         1
     FROM
@@ -67,6 +108,7 @@ IF NOT EXISTS(
 INSERT INTO
     Tasks (
         UserId,
+        CategoryId,
         Title,
         Description,
         Status,
@@ -75,6 +117,7 @@ INSERT INTO
     )
 VALUES
     (
+        1,
         1,
         'Sample Task',
         'This is a sample task.',

@@ -14,10 +14,8 @@ exports.login = async (req, res, next) => {
 
 exports.logout = async (req, res, next) => {
     try {
-        const token = req.body.token;
         const userId = req.claims.userId;
-
-        await logout(token, userId);
+        await logout(userId);
 
         return res.sendStatus(200);
     } catch (error) {

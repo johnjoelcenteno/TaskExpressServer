@@ -1,4 +1,4 @@
-const { Create: CreateTask, GetByUserId, Update, Delete } = require('../services/Tasks.services');
+const { Create: CreateTask, GetByUserId, Update, Delete, GetById } = require('../services/Tasks.services');
 const BaseResponse = require('../utils/BaseReponse.utils');
 
 exports.Create = async (req, res, next) => {
@@ -16,7 +16,10 @@ exports.Update = async (req, res, next) => {
     try {
         const { id: taskId } = req.params;
         const { userId } = req.claims;
+
         const { title, status, description, dueDate } = req.body;
+
+        console.log({ title, status, description, dueDate });
         let id = await Update(taskId, userId, title, status, description, dueDate);
         return res.send(new BaseResponse({ id }, "Task updated successfully", 200));
     } catch (error) {
@@ -36,7 +39,7 @@ exports.Delete = async (req, res, next) => {
     }
 }
 
-exports.GetByUserId = async (req, res) => {
+exports.GetByUserId = async (req, res, next) => {
     try {
         const userId = req.claims.userId;
         let result = await GetByUserId(userId);
@@ -45,3 +48,14 @@ exports.GetByUserId = async (req, res) => {
         next(error);
     }
 }
+
+exports.GetTaskById = async (req, res, next) => {
+    try {
+        const taskId = req.params.id;
+        let result = await GetById(taskId);
+        return res.send(new BaseResponse(result, 'success', 200));
+    } catch (error) {
+        next(error);
+    }
+}
+

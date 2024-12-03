@@ -20,6 +20,11 @@ exports.GetByUserId = async (userId) => {
     return tasks;
 }
 
+exports.GetById = async (taskId) => {
+    let task = await Task.GetById(taskId);
+    return task;
+}
+
 exports.Update = async (taskId, userId, title, status, description, dueDate) => {
     let taskUpdateModel = Task.CreateTask(userId, title, status, description, dueDate);
 
