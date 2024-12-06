@@ -1,4 +1,5 @@
 const Task = require('../models/Tasks.model');
+const Category = require('../models/Category.model');
 const CustomErr = require('../utils/CustomError.utils');
 const { isRequired, isDate } = require('../utils/Validators.utils');
 
@@ -8,8 +9,9 @@ const rules = {
     dueDate: [isDate]
 };
 
-exports.Create = async (userId, title, status, description, dueDate) => {
-    let task = Task.CreateTask(userId, title, status, description, dueDate);
+exports.Create = async (userId, title, status, description, dueDate, categoryId) => {
+
+    let task = Task.CreateTask(userId, title, status, description, dueDate, categoryId);
 
     CustomErr.validateFields(task, rules);
     return await Task.Insert(task);
@@ -25,9 +27,8 @@ exports.GetById = async (taskId) => {
     return task;
 }
 
-exports.Update = async (taskId, userId, title, status, description, dueDate) => {
-    let taskUpdateModel = Task.CreateTask(userId, title, status, description, dueDate);
-
+exports.Update = async (taskId, userId, title, status, description, dueDate, categoryId) => {
+    let taskUpdateModel = Task.CreateTask(userId, title, status, description, dueDate, categoryId);
     rules.status = [isRequired];
     CustomErr.validateFields(taskUpdateModel, rules);
 
@@ -44,4 +45,13 @@ exports.Delete = async (userId, taskId) => {
 
     await Task.Delete(userId, taskId);
     return task;
+}
+
+exports.GetTaskByCategory = async (userId, categoryId) => {
+    const category = await Category.GetById(categoryId);
+
+    if (!category) throw new CustomErr("Category not found", 404);
+
+    const tasks = await Task.GetByCategoryIdAndUserId(userId, categoryId);
+    return tasks;
 }

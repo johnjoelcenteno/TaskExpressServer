@@ -6,12 +6,8 @@ const rules = {
     categoryTitle: [isRequired],
 }
 
-exports.GetCategoryById = async (categoryId, userId) => {
-    // only show the categories of the user
-    // if db query is null return data: null it's not showing data. 
-    console.log({ categoryId });
+exports.GetCategoryById = async (categoryId) => {
     const result = await CategoryDb.GetById(categoryId);
-    console.log({ result }, 'from category service');
     return result;
 }
 
@@ -46,7 +42,6 @@ exports.DeleteCategory = async (id, userId) => {
 
 exports.GetTasksGroupedByCategories = async (userId) => {
     const result = await CategoryDb.GetTasksGroupedByCategories(userId);
-    console.log(result, 'result from group by');
     return result;
 }
 

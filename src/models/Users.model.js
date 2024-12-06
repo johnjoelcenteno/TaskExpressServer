@@ -9,6 +9,15 @@ exports.GetUserByUsername = async (username) => {
     return result.recordset;
 }
 
+exports.GetUserById = async (userId) => {
+    const pool = await poolPromise; // Get the connection pool
+    const result = await pool.request()
+        .input('UserId', sql.Int, userId)
+        .query('SELECT UserId, Username, PasswordHash FROM Users WHERE UserId = @userId');
+
+    return result.recordset[0];
+}
+
 exports.UpdateRefreshToken = async (userId, token) => {
     const pool = await poolPromise;
     const result = await pool.request()
@@ -19,13 +28,13 @@ exports.UpdateRefreshToken = async (userId, token) => {
     return result.rowsAffected;
 }
 
-exports.GetRefreshTokenByUserId = async (userId) => {
+exports.GetUserByRefreshToken = async (refreshToken) => {
     const pool = await poolPromise;
     const result = await pool.request()
-        .input('UserId', sql.Int, userId)
-        .query('SELECT RefreshToken FROM Users WHERE UserId = @UserId');
+        .input('RefreshToken', refreshToken)
+        .query(`SELECT RefreshToken, UserId FROM Users WHERE RefreshToken = @RefreshToken`);
 
-    return result.recordset;
+    return result.recordset[0];
 }
 
 

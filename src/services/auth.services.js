@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const CustomErr = require('../utils/CustomError.utils')
 
-const { GetUserByUsername, UpdateRefreshToken, GetRefreshTokenByUserId } = require('../models/Users.model');
+const { GetUserByUsername, UpdateRefreshToken, GetUserByRefreshToken, GetUserById } = require('../models/Users.model');
 
 
 function generateAccessToken(claims) {
@@ -25,7 +25,7 @@ exports.loginGenerateTokens = async (username, password) => {
     const passwordMatched = await bcrypt.compare(password, PasswordHash);
     if (!passwordMatched) throw new CustomErr('Invalid password', 401);
 
-    const claims = { name: username, userId: UserId };
+    const claims = { name: username, UserId };
 
     const accessToken = generateAccessToken(claims);
     const refreshToken = generateRefreshToken(claims);
@@ -35,22 +35,23 @@ exports.loginGenerateTokens = async (username, password) => {
 }
 
 exports.logout = async (userId) => {
-    const dbRefreshToken = await GetRefreshTokenByUserId(userId);
-    if (!dbRefreshToken.length) throw new CustomErr("Unauthorized", 401);
 
-    await UpdateRefreshToken(userId, null);
+    const { UserId } = await GetUserById(userId);
+    if (!UserId) throw new CustomErr("Unauthorized", 401);
+
+    await UpdateRefreshToken(UserId, null);
 }
 
-exports.GenerateAccessTokenByRefreshToken = async (token, userId) => {
-    const dbRefreshToken = await GetRefreshTokenByUserId(userId);
-    if (!dbRefreshToken.length || !dbRefreshToken[0].RefreshToken) throw new CustomErr("Unauthorized", 401);
+exports.GenerateAccessTokenByRefreshToken = async (token) => {
+    const response = await GetUserByRefreshToken(token);
+    if (!response) throw new CustomErr("Unauthorized", 401); // refreshToken is already removed (logout)
 
     if (!token) throw new CustomErr("Invalid token request", 401);
 
     return jwt.verify(token, process.env.REFRESH_TOKEN, (err, claims) => {
         if (err) throw new CustomErr("Unauthorized", 401);
 
-        const accessToken = generateAccessToken({ name: claims.name, userId });
-        return accessToken;
+        const accessToken = generateAccessToken({ name: claims.name, UserId: response?.UserId });
+        return { accessToken };
     });
 }

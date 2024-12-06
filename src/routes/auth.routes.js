@@ -6,6 +6,6 @@ const { authenticationMiddleware } = require('../middlewares/authentication.midd
 
 router.post('/login', login);
 router.post('/logout', authenticationMiddleware, logout);
-router.post('/token', authenticationMiddleware, token);
+router.post('/token', token);
 
 module.exports = router;

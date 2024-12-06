@@ -41,14 +41,13 @@ class Category {
 
                 if (!acc[CategoryId]) {
                     acc[CategoryId] = {
-                        taskCount: TaskCount, // Accurate count of pending tasks
+                        taskCount: TaskCount,
                         categoryId: CategoryId,
                         name: Name,
                         tasks: []
                     };
                 }
 
-                // Add only pending tasks to the tasks array
                 if (TaskId && Status === 'Pending') {
                     acc[CategoryId].tasks.push({
                         title: TaskTitle,
@@ -162,14 +161,16 @@ class Category {
     static async Delete(categoryId) {
         try {
             const pool = await poolPromise;
+
+            await pool
+                .request()
+                .input('CategoryId', sql.Int, categoryId)
+                .query(`DELETE FROM Tasks WHERE CategoryId = @CategoryId`);
+
             const result = await pool
                 .request()
                 .input('CategoryId', sql.Int, categoryId)
-                .query(
-                    `DELETE FROM Categories 
-                     OUTPUT DELETED.CategoryId, DELETED.Title
-                     WHERE CategoryId = @CategoryId`
-                );
+                .query(`DELETE FROM Categories WHERE CategoryId = @CategoryId`);
 
             return result.recordset[0];
         } catch (error) {
@@ -177,6 +178,7 @@ class Category {
             throw error;
         }
     }
+
 }
 
 module.exports = Category;

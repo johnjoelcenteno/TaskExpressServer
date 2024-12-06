@@ -14,7 +14,7 @@ exports.login = async (req, res, next) => {
 
 exports.logout = async (req, res, next) => {
     try {
-        const userId = req.claims.userId;
+        const userId = req.claims.UserId;
         await logout(userId);
 
         return res.sendStatus(200);
@@ -26,9 +26,8 @@ exports.logout = async (req, res, next) => {
 exports.token = async (req, res, next) => {
     try {
         const token = req.body.token;
-        const userId = req.claims.userId;
-        const accessToken = await GenerateAccessTokenByRefreshToken(token, userId);
-        return res.send({ accessToken });
+        const accessToken = await GenerateAccessTokenByRefreshToken(token);
+        return res.send(accessToken);
     } catch (error) {
         next(error);
     }

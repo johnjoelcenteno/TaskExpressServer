@@ -11,6 +11,6 @@ router.get('/GetTasksGroupByCategory/', GetGroupedTasksByCategory);
 router.post('/', CreateCategory);
 router.put('/:id', UpdateCategory);
 router.delete('/:id', DeleteCateogry);
-router.get('/GetByUserId/:Id', GetCategoryByUserId);
+router.get('/GetByUserId/', GetCategoryByUserId);
 
 module.exports = router;

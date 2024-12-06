@@ -7,8 +7,7 @@ IF NOT EXISTS (
     WHERE
         name = 'Users'
         AND schema_id = SCHEMA_ID('dbo')
-) BEGIN -- Create the Users table
-CREATE TABLE dbo.Users (
+) BEGIN CREATE TABLE dbo.Users (
     UserId INT IDENTITY(1, 1) PRIMARY KEY,
     Username NVARCHAR(50) UNIQUE NOT NULL,
     PasswordHash NVARCHAR(255) NOT NULL,
@@ -28,14 +27,13 @@ IF NOT EXISTS (
     WHERE
         name = 'Categories'
         AND schema_id = SCHEMA_ID('dbo')
-) BEGIN -- Create the Categories table
-CREATE TABLE dbo.Categories (
+) BEGIN CREATE TABLE dbo.Categories (
     CategoryId INT IDENTITY(1, 1) PRIMARY KEY,
     Title NVARCHAR(50) NOT NULL,
     UserId INT NOT NULL,
     CreatedAt DATETIME DEFAULT GETDATE(),
     UpdatedAt DATETIME DEFAULT GETDATE(),
-    FOREIGN KEY (UserId) REFERENCES dbo.Users(UserId) ON DELETE CASCADE -- Ensure categories belong to a user
+    FOREIGN KEY (UserId) REFERENCES dbo.Users(UserId) ON DELETE CASCADE
 );
 
 END;
@@ -49,8 +47,7 @@ IF NOT EXISTS (
     WHERE
         name = 'Tasks'
         AND schema_id = SCHEMA_ID('dbo')
-) BEGIN -- Create the Tasks table
-CREATE TABLE dbo.Tasks (
+) BEGIN CREATE TABLE dbo.Tasks (
     TaskId INT IDENTITY(1, 1) PRIMARY KEY,
     UserId INT NOT NULL,
     CategoryId INT NOT NULL,
@@ -60,8 +57,7 @@ CREATE TABLE dbo.Tasks (
     DueDate DATETIME NULL,
     CreatedAt DATETIME DEFAULT GETDATE(),
     UpdatedAt DATETIME DEFAULT GETDATE(),
-    FOREIGN KEY (UserId) REFERENCES dbo.Users(UserId) ON DELETE CASCADE,
-    FOREIGN KEY (CategoryId) REFERENCES dbo.Categories(CategoryId) ON DELETE NO ACTION -- Remove cascading delete
+    FOREIGN KEY (CategoryId) REFERENCES dbo.Categories(CategoryId)
 );
 
 END;
@@ -95,7 +91,8 @@ INSERT INTO
 VALUES
     ('Today', 1),
     ('This week', 1),
-    ('This month', 1)
+    ('This month', 1);
+
 END;
 
 -- Populate Tasks table
@@ -116,6 +113,33 @@ INSERT INTO
         UpdatedAt
     )
 VALUES
+    (
+        1,
+        1,
+        'Sample Task',
+        'This is a sample task.',
+        'Pending',
+        GETDATE(),
+        GETDATE()
+    ),
+    (
+        1,
+        1,
+        'Sample Task',
+        'This is a sample task.',
+        'Pending',
+        GETDATE(),
+        GETDATE()
+    ),
+    (
+        1,
+        1,
+        'Sample Task',
+        'This is a sample task.',
+        'Pending',
+        GETDATE(),
+        GETDATE()
+    ),
     (
         1,
         1,
